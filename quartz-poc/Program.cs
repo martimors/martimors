@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using OpenTelemetry.Trace;
 using Quartz;
 using quartz_poc;
 
@@ -7,6 +9,12 @@ Console.WriteLine("Starting the application...");
 var builder = Host.CreateDefaultBuilder(args)
     .ConfigureServices((_, services) =>
     {
+        services.AddLogging();
+        services.AddOpenTelemetry().WithTracing(builder =>
+        {
+            builder.AddQuartzInstrumentation();
+            builder.AddConsoleExporter();
+        });
         services.AddQuartz(q =>
             {
                 q.SchedulerName = "MyScheduler";
