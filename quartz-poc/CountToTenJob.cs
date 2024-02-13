@@ -13,7 +13,6 @@ public class CountToTenJob : IJob
                 Console.WriteLine("Counting to ten: " + i);
                 await Task.Delay(1000);
             }
-
         }
         catch (Exception e)
         {

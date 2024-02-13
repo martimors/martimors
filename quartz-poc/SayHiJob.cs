@@ -2,6 +2,7 @@ using Quartz;
 
 namespace quartz_poc;
 
+[DisallowConcurrentExecution]
 public class SayHiJob : IJob
 {
     public async Task Execute(IJobExecutionContext context)

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Quartz;
 using quartz_poc;
 
@@ -20,7 +19,7 @@ var builder = Host.CreateDefaultBuilder(args)
                         s.UsePostgres(p =>
                         {
                             p.ConnectionString =
-                                "Server=localhost;Port=5432;User Id=postgres;Database=postgres;Password=postgres;";
+                                "Server=db;Port=5432;User Id=postgres;Database=postgres;Password=postgres;";
                             p.TablePrefix = "scheduler_";
                         });
                         s.PerformSchemaValidation = true;
@@ -34,20 +33,24 @@ var builder = Host.CreateDefaultBuilder(args)
                 );
                 q.ScheduleJob<SayHiJob>(t => t.WithIdentity("every_2_seconds", "console")
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(2).RepeatForever())
-                    .StartNow().WithDescription("Say hi every 2 seconds!"));
+                    .UsingJobData("name", "John Doe")
+                    .StartNow()
+                    .WithDescription("Say hi every 2 seconds!"));
                 q.ScheduleJob<RandomNumberJob>(t => t.WithIdentity("every_minute_cron", "console")
                     .WithCronSchedule("* 0/1 * 1/1 * ? * ", x => x.WithMisfireHandlingInstructionDoNothing())
-                    .StartNow().WithDescription("Print a random number every second!"));
+                    .StartNow()
+                    .WithDescription("Print a random number every second!"));
                 q.ScheduleJob<FailingJob>(t => t.WithIdentity("every_10_seconds", "console")
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever())
-                    .StartNow());
+                    .StartNow()
+                    .WithDescription("Throw an exception every 10 seconds!"));
                 q.ScheduleJob<CountToTenJob>(t => t.WithIdentity("count_to_ten", "console")
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(30).RepeatForever())
-                    .StartNow());
+                    .StartNow()
+                    .WithDescription("Count to ten every 30 seconds!"));
             }
         );
         services.AddQuartzHostedService(opt => { opt.WaitForJobsToComplete = true; });
-        services.Configure<QuartzOptions>(opt => { opt.SchedulerName = "MyScheduler"; });
     }).Build();
 
 Console.WriteLine("Application started!");

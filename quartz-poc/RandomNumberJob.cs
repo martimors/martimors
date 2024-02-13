@@ -2,7 +2,6 @@ using Quartz;
 
 namespace quartz_poc;
 
-[DisallowConcurrentExecution]
 public class RandomNumberJob : IJob
 {
     public async Task Execute(IJobExecutionContext context)

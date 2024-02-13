@@ -1,9 +1,14 @@
-﻿services:
+﻿version: '3.7'
+services:
   quartz-poc:
     image: quartz-poc
     build:
-      context: .
+      context: ./quartz-poc
       dockerfile: Dockerfile
+    deploy:
+      mode: replicated
+      replicas: 2
+    restart: always
   db:
     image: postgres
     ports:
