@@ -12,33 +12,13 @@ var builder = Host.CreateDefaultBuilder(args)
         services.AddLogging();
         services.AddOpenTelemetry().WithTracing(builder =>
         {
-            builder.AddQuartzInstrumentation();
+            // builder.AddQuartzInstrumentation();
             builder.AddConsoleExporter();
         });
         services.AddQuartz(q =>
             {
-                q.SchedulerName = "MyScheduler";
-                q.SchedulerId = "MyScheduler";
-                q.UseDefaultThreadPool(10);
-                q.UsePersistentStore(s =>
-                    {
-                        s.UseProperties = true;
-                        s.UseNewtonsoftJsonSerializer();
-                        s.UsePostgres(p =>
-                        {
-                            p.ConnectionString =
-                                "Server=db;Port=5432;User Id=postgres;Database=postgres;Password=postgres;";
-                            p.TablePrefix = "scheduler_";
-                        });
-                        s.PerformSchemaValidation = true;
-                        s.UseClustering(c =>
-                        {
-                            c.CheckinInterval = TimeSpan.FromSeconds(10);
-                            c.CheckinMisfireThreshold = TimeSpan.FromSeconds(20);
-                        });
-                        s.RetryInterval = TimeSpan.FromSeconds(15);
-                    }
-                );
+                q.ConfigureQuartz("MyScheduler",
+                    "Server=db;Port=5432;User Id=postgres;Database=postgres;Password=postgres;");
                 q.ScheduleJob<SayHiJob>(t => t.WithIdentity("every_2_seconds", "console")
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(2).RepeatForever())
                     .UsingJobData("name", "John Doe")
